@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	// [Todo] - change to go-httpclient
+	// [Todo] change to go-httpclient
 	"github.com/opsoc/go-http-client-main/gohttp"
 )
 
