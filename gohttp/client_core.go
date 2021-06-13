@@ -9,7 +9,6 @@ import (
 	"net"
 	"net/http"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -28,6 +27,10 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 		return nil, err
 	}
 
+	if mock := mockupServer.getMock(method, url, string(requestBody)); mock != nil {
+		return mock.GetResponse()
+	}
+
 	request, err := http.NewRequest(method, url, bytes.NewBuffer((requestBody)))
 	if err != nil {
 		return nil, errors.New("Unable to create new request.")
@@ -36,23 +39,23 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 	request.Header = fullHeaders
 
 	client := c.getHttpClient()
-	
+
 	response, err := client.Do(request)
 	if err != nil {
 		return nil, err
 	}
 
 	defer response.Body.Close()
-	responseBody, err = ioutil.ReadAll(response.Body)
+	responseBody, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		return nil, err
 	}
 
 	finalResponse := Response{
-		status: 	response.Status,
+		status:     response.Status,
 		statusCode: response.StatusCode,
-		headers: 	response.Header,
-		body: 		responseBody,
+		headers:    response.Header,
+		body:       responseBody,
 	}
 	return &finalResponse, nil
 
@@ -63,12 +66,12 @@ func (c *httpClient) getHttpClient() *http.Client {
 	c.clientOnce.Do(func() {
 		// Feel free to add more features here as needed <3.
 		c.client = &http.Client{
-			Timeout: c.getConnectionTimeout() + c.getResponseTimeout()
+			Timeout: c.getConnectionTimeout() + c.getResponseTimeout(),
 			Transport: &http.Transport{
 				MaxIdleConnsPerHost:   c.getMaxIdleConnections(),
 				ResponseHeaderTimeout: c.getResponseTimeout(),
 				DialContext: (&net.Dialer{
-					Timeout: c.connectionTimeout,
+					Timeout: c.getConnectionTimeout(),
 				}).DialContext,
 			},
 		}
@@ -76,7 +79,6 @@ func (c *httpClient) getHttpClient() *http.Client {
 
 	return c.client
 }
-
 
 func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byte, error) {
 	if body == nil {
@@ -104,7 +106,7 @@ func (c *httpClient) getResponseTimeout() time.Duration {
 	if c.builder.responseTimeout > 0 {
 		return c.builder.responseTimeout
 	}
-	if c.disableTimeouts {
+	if c.builder.disableTimeouts {
 		return 0
 	}
 	return defaultResponseTimeout
@@ -114,7 +116,7 @@ func (c *httpClient) getConnectionTimeout() time.Duration {
 	if c.builder.connectionTimeout > 0 {
 		return c.builder.connectionTimeout
 	}
-	if c.disableTimeouts {
+	if c.builder.disableTimeouts {
 		return 0
 	}
 	return defaultConnectionTimeout

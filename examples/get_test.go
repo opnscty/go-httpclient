@@ -1,0 +1,95 @@
+package examples
+
+import (
+	"errors"
+	"fmt"
+	"net/http"
+	"strings"
+	"testing"
+
+	"github.com/opsoc/go-httpclient/gohttp"
+)
+
+func TestGetEndpoints(t *testing.T) {
+	t.Run("TestErrorFetchingFromGithub", func(t *testing.T) {
+		// Tell HTTP library to mock all following requests
+		gohttp.StartMockServer()
+
+		// Initialization:
+		gohttp.AddMock(gohttp.Mock{
+			Method: http.MethodGet,
+			URL:    "https://api.github.com",
+			Error:  errors.New("Request Timeout: Could not fetch Github endpoints"),
+		})
+
+		// Execution:
+		endpoints, err := GetEndpoints()
+
+		// Validation:π
+		if endpoints != nil {
+			t.Error("No endpoints expected.")
+		}
+
+		if err == nil {
+			t.Error("An error was expected.")
+		}
+
+		if err.Error() != "Request Timeout: Could not fetch Github endpoints" {
+			t.Error("Invalid error message received.")
+		}
+	})
+
+	t.Run("TestErrorUnmarshalResponseBody", func(t *testing.T) {
+
+		// Initialization:
+		gohttp.AddMock(gohttp.Mock{
+			Method:             http.MethodGet,
+			URL:                "https://api.github.com",
+			ResponseStatusCode: http.StatusOK,
+			ResponseBody:       `{"current_user_url": 123}`,
+		})
+
+		// Execution:
+		endpoints, err := GetEndpoints()
+
+		// Validation:
+		if endpoints != nil {
+			t.Error("No endpoints expected.")
+		}
+
+		if err == nil {
+			t.Error("An error was expected.")
+		}
+
+		if !strings.Contains(err.Error(), "cannot unmarshal number into Go struct field") {
+			t.Error("Invalid error message received.")
+		}
+	})
+
+	t.Run("TestNoError", func(t *testing.T) {
+
+		// Initialization:
+		gohttp.AddMock(gohttp.Mock{
+			Method:             http.MethodGet,
+			URL:                "https://api.github.com",
+			ResponseStatusCode: http.StatusOK,
+			ResponseBody:       `{"current_user_url": "http://api.github.com/user"}`,
+		})
+
+		// Execution:
+		endpoints, err := GetEndpoints()
+
+		// Validation:
+		if err != nil {
+			t.Error(fmt.Sprintf("No error was expected. Received: '%s'", err.Error()))
+		}
+
+		if endpoints == nil {
+			t.Error("Endpoints were expected. Nil was returned.")
+		}
+
+		if endpoints.CurrentUser != "http://api.github.com/user" {
+			t.Error("Invalid current user url.")
+		}
+	})
+}

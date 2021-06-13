@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	// [Todo] change to go-httpclient
-	"github.com/opsoc/go-http-client-main/gohttp"
+	"github.com/opsoc/go-httpclient/gohttp"
 )
 
 var (
-	githubHttpClient = gohttp.New()
+	githubHttpClient = gohttp.NewBuilder()
 )
 
 func getGithubClient() gohttp.Client {
