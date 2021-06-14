@@ -19,7 +19,6 @@ const (
 )
 
 func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*Response, error) {
-
 	fullHeaders := c.getRequestHeaders(headers)
 
 	requestBody, err := c.getRequestBody(fullHeaders.Get("Content-Type"), body)
@@ -64,6 +63,12 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 func (c *httpClient) getHttpClient() *http.Client {
 
 	c.clientOnce.Do(func() {
+		// If client is already defined
+		if c.builder.client != nil {
+			c.client = c.builder.client
+			return
+		}
+
 		// Feel free to add more features here as needed <3.
 		c.client = &http.Client{
 			Timeout: c.getConnectionTimeout() + c.getResponseTimeout(),
