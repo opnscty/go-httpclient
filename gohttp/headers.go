@@ -2,6 +2,8 @@ package gohttp
 
 import (
 	"net/http"
+
+	"github.com/opsoc/go-httpclient/gomime"
 )
 
 func getHeaders(headers ...http.Header) http.Header {
@@ -27,5 +29,14 @@ func (c *httpClient) getRequestHeaders(requestHeaders http.Header) http.Header {
 			result.Set(header, value[0])
 		}
 	}
+
+	// Set user agent if one is defined but not set in a custom client
+	if c.builder.userAgent != "" {
+		if result.Get(gomime.HeaderUserAgent) != "" {
+			return result
+		}
+		result.Set(gomime.HeaderUserAgent, c.builder.userAgent)
+	}
+
 	return result
 }

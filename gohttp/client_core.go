@@ -10,6 +10,9 @@ import (
 	"net/http"
 	"strings"
 	"time"
+
+	"github.com/opsoc/go-httpclient/gohttp_mock"
+	"github.com/opsoc/go-httpclient/gomime"
 )
 
 const (
@@ -26,7 +29,7 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 		return nil, err
 	}
 
-	if mock := mockupServer.getMock(method, url, string(requestBody)); mock != nil {
+	if mock := gohttp_mock.GetMock(method, url, string(requestBody)); mock != nil {
 		return mock.GetResponse()
 	}
 
@@ -51,13 +54,12 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 	}
 
 	finalResponse := Response{
-		status:     response.Status,
-		statusCode: response.StatusCode,
-		headers:    response.Header,
-		body:       responseBody,
+		Status:     response.Status,
+		StatusCode: response.StatusCode,
+		Headers:    response.Header,
+		Body:       responseBody,
 	}
 	return &finalResponse, nil
-
 }
 
 func (c *httpClient) getHttpClient() *http.Client {
@@ -91,9 +93,9 @@ func (c *httpClient) getRequestBody(contentType string, body interface{}) ([]byt
 	}
 
 	switch strings.ToLower(contentType) {
-	case "application/json":
+	case gomime.ContentTypeJSON:
 		return json.Marshal(body)
-	case "application/xml":
+	case gomime.ContentTypeXML:
 		return xml.Marshal(body)
 	default:
 		return json.Marshal(body)

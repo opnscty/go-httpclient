@@ -39,4 +39,34 @@ func TestPost(t *testing.T) {
 		// 	t.Error("Invalid error message.")
 		// }
 	})
+
+	t.Run("No error from Github", func(t *testing.T) {
+		gohttp.FlushMocks()
+		gohttp.AddMock(gohttp.Mock{
+			Method:      http.MethodPost,
+			URL:         "https://api.github.com/user/repos",
+			RequestBody: `{"name":"test-repo","private":true}`,
+
+			ResponseStatusCode: http.StatusCreated,
+			ResponseBody:       `{"id":123,"name":"test-repo"`,
+		})
+
+		repository := Repository{
+			Name:    "test-repo",
+			Private: true,
+		}
+		repo, err := CreateRepo(repository)
+
+		if err != nil {
+			t.Error("No error expected when getting a valid response from Github.")
+		}
+
+		if repo == nil {
+			t.Error("A valid repo was expected.")
+		}
+
+		if repo.Name != repository.Name {
+			t.Error("Invalid repository name for successful response from Github")
+		}
+	})
 }
