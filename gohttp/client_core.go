@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/opsoc/go-httpclient/core"
 	"github.com/opsoc/go-httpclient/gohttp_mock"
 	"github.com/opsoc/go-httpclient/gomime"
 )
@@ -21,7 +22,7 @@ const (
 	defaultConnectionTimeout  = 1 * time.Second
 )
 
-func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*Response, error) {
+func (c *httpClient) do(method string, url string, headers http.Header, body interface{}) (*core.Response, error) {
 	fullHeaders := c.getRequestHeaders(headers)
 
 	requestBody, err := c.getRequestBody(fullHeaders.Get("Content-Type"), body)
@@ -53,7 +54,7 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 		return nil, err
 	}
 
-	finalResponse := Response{
+	finalResponse := core.Response{
 		Status:     response.Status,
 		StatusCode: response.StatusCode,
 		Headers:    response.Header,
