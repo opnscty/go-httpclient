@@ -16,7 +16,7 @@ func getHeaders(headers ...http.Header) http.Header {
 func (c *httpClient) getRequestHeaders(requestHeaders http.Header) http.Header {
 	result := make(http.Header)
 
-	// Add common headers to request:
+	// Add common headers to request from the HTTP Client instance:
 	for header, value := range c.builder.headers {
 		if len(value) > 0 {
 			result.Set(header, value[0])
@@ -30,7 +30,7 @@ func (c *httpClient) getRequestHeaders(requestHeaders http.Header) http.Header {
 		}
 	}
 
-	// Set user agent if one is defined but not set in a custom client
+	// Set User-Agent if one is defined but not set in a custom client
 	if c.builder.userAgent != "" {
 		if result.Get(gomime.HeaderUserAgent) != "" {
 			return result

@@ -13,7 +13,7 @@ type GithubError struct {
 
 type Repository struct {
 	Name        string `json:"name"`
-	Description string `json:"description"`
+	Description string `json:"description,omitempty"`
 	Private     bool   `json:"private"`
 }
 

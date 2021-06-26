@@ -15,17 +15,17 @@ func TestMain(m *testing.M) {
 	fmt.Println("Starting test cases for package 'examples'...")
 
 	// Tell HTTP library to mock all following requests
-	gohttp_mock.StartMockServer()
+	gohttp_mock.MockupServer.Start()
 
 	os.Exit(m.Run())
 }
 
 func TestGetEndpoints(t *testing.T) {
 	t.Run("TestErrorFetchingFromGithub", func(t *testing.T) {
-		gohttp_mock.DeleteMocks()
 
 		// Initialization:
-		gohttp_mock.AddMock(gohttp_mock.Mock{
+		gohttp_mock.MockupServer.DeleteMocks()
+		gohttp_mock.MockupServer.AddMock(gohttp_mock.Mock{
 			Method: http.MethodGet,
 			URL:    "https://api.github.com",
 			Error:  errors.New("Request Timeout: Could not fetch Github endpoints"),
@@ -34,7 +34,7 @@ func TestGetEndpoints(t *testing.T) {
 		// Execution:
 		endpoints, err := GetEndpoints()
 
-		// Validation:π
+		// Validation:
 		if endpoints != nil {
 			t.Error("No endpoints expected.")
 		}
@@ -49,10 +49,10 @@ func TestGetEndpoints(t *testing.T) {
 	})
 
 	t.Run("TestErrorUnmarshalResponseBody", func(t *testing.T) {
-		gohttp_mock.DeleteMocks()
+		gohttp_mock.MockupServer.DeleteMocks()
 
 		// Initialization:
-		gohttp_mock.AddMock(gohttp_mock.Mock{
+		gohttp_mock.MockupServer.AddMock(gohttp_mock.Mock{
 			Method:             http.MethodGet,
 			URL:                "https://api.github.com",
 			ResponseStatusCode: http.StatusOK,
@@ -77,10 +77,10 @@ func TestGetEndpoints(t *testing.T) {
 	})
 
 	t.Run("TestNoError", func(t *testing.T) {
-		gohttp_mock.DeleteMocks()
+		gohttp_mock.MockupServer.DeleteMocks()
 
 		// Initialization:
-		gohttp_mock.AddMock(gohttp_mock.Mock{
+		gohttp_mock.MockupServer.AddMock(gohttp_mock.Mock{
 			Method:             http.MethodGet,
 			URL:                "https://api.github.com",
 			ResponseStatusCode: http.StatusOK,

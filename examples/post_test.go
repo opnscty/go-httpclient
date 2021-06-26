@@ -2,71 +2,74 @@ package examples
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"testing"
 
 	"github.com/opsoc/go-httpclient/gohttp_mock"
 )
 
-func TestPost(t *testing.T) {
-	t.Run("Timeout from Github", func(t *testing.T) {
-		gohttp_mock.DeleteMocks()
-		gohttp_mock.AddMock(gohttp_mock.Mock{
+func TestCreateRepo(t *testing.T) {
+	t.Run("TimeoutFromGithub", func(t *testing.T) {
+		gohttp_mock.MockupServer.DeleteMocks()
+		gohttp_mock.MockupServer.AddMock(gohttp_mock.Mock{
 			Method:      http.MethodPost,
 			URL:         "https://api.github.com/user/repos",
 			RequestBody: `{"name":"test-repo","private":true}`,
 
-			Error: errors.New("timeout from github"),
+			Error: errors.New("Timeout from Github."),
 		})
 
 		repository := Repository{
 			Name:    "test-repo",
 			Private: true,
 		}
+
 		repo, err := CreateRepo(repository)
 
 		if repo != nil {
-			t.Error("No repo expected when getting timeout from Github.")
+			t.Error("no repo expected when we get a timeout from github")
 		}
 
 		if err == nil {
-			t.Error("Error expected when getting timeout frmo Github.")
+			t.Error("an error is expected when we get a timeout from github")
 		}
 
-		// [Todo] test doesn't work...
-		// if err.Error() != "timeout from github" {
-		// 	fmt.Println(err.Error())
-		// 	t.Error("Invalid error message.")
-		// }
+		if err.Error() != "Timeout from Github." {
+			fmt.Println(err.Error())
+			t.Error("invalid error message")
+		}
 	})
 
-	t.Run("No error from Github", func(t *testing.T) {
-		gohttp_mock.DeleteMocks()
-		gohttp_mock.AddMock(gohttp_mock.Mock{
+	t.Run("NoErrorFromGithub", func(t *testing.T) {
+		gohttp_mock.MockupServer.DeleteMocks()
+		gohttp_mock.MockupServer.AddMock(gohttp_mock.Mock{
 			Method:      http.MethodPost,
 			URL:         "https://api.github.com/user/repos",
 			RequestBody: `{"name":"test-repo","private":true}`,
 
 			ResponseStatusCode: http.StatusCreated,
-			ResponseBody:       `{"id":123,"name":"test-repo"`,
+			ResponseBody:       `{"id":123,"name":"test-repo"}`,
 		})
 
 		repository := Repository{
 			Name:    "test-repo",
 			Private: true,
 		}
+
 		repo, err := CreateRepo(repository)
 
 		if err != nil {
-			t.Error("No error expected when getting a valid response from Github.")
+			t.Error("no error expected when we get valid response from github")
 		}
 
 		if repo == nil {
-			t.Error("A valid repo was expected.")
+			t.Error("a valid repo was expected at this point")
 		}
 
 		if repo.Name != repository.Name {
-			t.Error("Invalid repository name for successful response from Github")
+			t.Error("invalid repository name obtained from github")
 		}
 	})
+
 }
