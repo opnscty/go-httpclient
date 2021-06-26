@@ -63,7 +63,7 @@ func (c *httpClient) do(method string, url string, headers http.Header, body int
 	return &finalResponse, nil
 }
 
-func (c *httpClient) getHttpClient() *http.Client {
+func (c *httpClient) getHttpClient() core.HttpClient {
 
 	c.clientOnce.Do(func() {
 		// If client is already defined
