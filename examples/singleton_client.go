@@ -4,8 +4,8 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/opsoc/go-httpclient/gohttp"
-	"github.com/opsoc/go-httpclient/gomime"
+	"github.com/opnscty/go-httpclient/gohttp"
+	"github.com/opnscty/go-httpclient/gomime"
 )
 
 var (

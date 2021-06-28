@@ -11,9 +11,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/opsoc/go-httpclient/core"
-	"github.com/opsoc/go-httpclient/gohttp_mock"
-	"github.com/opsoc/go-httpclient/gomime"
+	"github.com/opnscty/go-httpclient/core"
+	"github.com/opnscty/go-httpclient/gohttp_mock"
+	"github.com/opnscty/go-httpclient/gomime"
 )
 
 const (

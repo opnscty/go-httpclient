@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/opsoc/go-httpclient/core"
+	"github.com/opnscty/go-httpclient/core"
 )
 
 // Mock provides a clean way to configure http mocks based on a combination

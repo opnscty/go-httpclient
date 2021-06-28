@@ -1,3 +1,3 @@
-module github.com/opsoc/go-httpclient
+module github.com/opnscty/go-httpclient
 
 go 1.14
